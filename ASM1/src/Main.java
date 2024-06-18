@@ -1,187 +1,178 @@
 import Student.Student;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    private static List<Student> students = new LinkedList<>();
+    private Student[] students;
+    private int count;
 
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-            System.out.println("=== Student Management System ===");
-            System.out.println("1. Add Student");
-            System.out.println("2. Edit Student");
-            System.out.println("3. Delete Student");
-            System.out.println("4. Sort Students");
-            System.out.println("5. Search Student");
-            System.out.println("6. Display All Students");
-            System.out.println("7. Exit");
-            System.out.print("Choose an option: ");
-            int option = scanner.nextInt();
-            scanner.nextLine(); // consume newline
+    public Main(int size) {
+        students = new Student[size];
+        count = 0;
+    }
 
-            switch (option) {
-                case 1:
-                    addStudent(scanner);
-                    break;
-                case 2:
-                    editStudent(scanner);
-                    break;
-                case 3:
-                    deleteStudent(scanner);
-                    break;
-                case 4:
-                    sortStudents(scanner);
-                    break;
-                case 5:
-                    searchStudent(scanner);
-                    break;
-                case 6:
-                    displayAllStudents();
-                    break;
-                case 7:
-                    System.out.println("Exiting...");
-                    return;
-                default:
-                    System.out.println("Invalid option. Please try again.");
+    public void addStudent(String id, String name, double marks) {
+        if (count < students.length) {
+            students[count++] = new Student(id, name, marks);
+        } else {
+            System.out.println("The list is full. Cannot add more students.");
+        }
+    }
+
+    public void editStudent(String id, String newName, double newMarks) {
+        for (int i = 0; i < count; i++) {
+            if (students[i].getId().equals(id)) {
+                students[i].setName(newName);
+                students[i].setMarks(newMarks);
+                return;
             }
         }
+        System.out.println("Student not found.");
     }
 
-
-
-
-    private static void addStudent(Scanner scanner) {
-        System.out.print("Enter student ID: ");
-        String id = scanner.nextLine();
-        System.out.print("Enter student name: ");
-        String name = scanner.nextLine();
-        System.out.print("Enter student marks: ");
-        double marks = scanner.nextDouble();
-        scanner.nextLine(); // consume newline
-        students.add(new Student(id, name, marks));
-    }
-
-    private static void editStudent(Scanner scanner) {
-        System.out.print("Enter student ID to edit: ");
-        String id = scanner.nextLine();
-        Student student = findStudentById(id);
-        if (student == null) {
-            System.out.println("Student not found.");
-            return;
+    public void deleteStudent(String id) {
+        for (int i = 0; i < count; i++) {
+            if (students[i].getId().equals(id)) {
+                for (int j = i; j < count - 1; j++) {
+                    students[j] = students[j + 1];
+                }
+                students[--count] = null;
+                return;
+            }
         }
-        System.out.print("Enter new student name: ");
-        String name = scanner.nextLine();
-        System.out.print("Enter new marks: ");
-        double marks = scanner.nextDouble();
-        scanner.nextLine(); // consume newline
-        student.setName(name);
-        student.setMarks(marks);
-        System.out.println("Student marks updated.");
+        System.out.println("Student not found.");
     }
 
-    private static void deleteStudent(Scanner scanner) {
-        System.out.print("Enter student ID to delete: ");
-        String id = scanner.nextLine();
-        Student student = findStudentById(id);
-        if (student == null) {
-            System.out.println("Student not found.");
-            return;
-        }
-        students.remove(student);
-        System.out.println("Student deleted.");
-    }
-
-    private static void sortStudents(Scanner scanner) {
-        System.out.println("Choose sorting method:");
-        System.out.println("1. Selection Sort");
-        System.out.println("2. Quick Sort");
-        int choice = scanner.nextInt();
-        scanner.nextLine(); // consume newline
-
-        switch (choice) {
-            case 1:
-                selectionSort(students);
-                System.out.println("Students sorted by Selection Sort.");
-                break;
-            case 2:
-                quickSort(students, 0, students.size() - 1);
-                System.out.println("Students sorted by Quick Sort.");
-                break;
-            default:
-                System.out.println("Invalid choice.");
-                break;
-        }
-    }
-
-    private static void selectionSort(List<Student> students) {
-        int n = students.size();
-        for (int i = 0; i < n - 1; i++) {
+    public void sortStudentsBySelectionSort() {
+        for (int i = 0; i < count - 1; i++) {
             int minIndex = i;
-            for (int j = i + 1; j < n; j++) {
-                if (students.get(j).getMarks() > students.get(minIndex).getMarks()) {
+            for (int j = i + 1; j < count; j++) {
+                if (students[j].getMarks() < students[minIndex].getMarks()) {
                     minIndex = j;
                 }
             }
             if (minIndex != i) {
-                Student temp = students.get(i);
-                students.set(i, students.get(minIndex));
-                students.set(minIndex, temp);
+                Student temp = students[i];
+                students[i] = students[minIndex];
+                students[minIndex] = temp;
             }
         }
     }
 
-    private static int partition(List<Student> students, int low, int high) {
-        Student pivot = students.get(high);
+    public void sortStudentsByQuickSort() {
+        quickSort(0, count - 1);
+    }
+
+    private void quickSort(int low, int high) {
+        if (low < high) {
+            int pi = partition(low, high);
+            quickSort(low, pi - 1);
+            quickSort(pi + 1, high);
+        }
+    }
+
+    private int partition(int low, int high) {
+        double pivot = students[high].getMarks();
         int i = (low - 1);
         for (int j = low; j < high; j++) {
-            if (students.get(j).getMarks() > pivot.getMarks()) {
+            if (students[j].getMarks() <= pivot) {
                 i++;
-                Student temp = students.get(i);
-                students.set(i, students.get(j));
-                students.set(j, temp);
+                Student temp = students[i];
+                students[i] = students[j];
+                students[j] = temp;
             }
         }
-        Student temp = students.get(i + 1);
-        students.set(i + 1, students.get(high));
-        students.set(high, temp);
+        Student temp = students[i + 1];
+        students[i + 1] = students[high];
+        students[high] = temp;
         return i + 1;
     }
-    
-    private static void quickSort(List<Student> students, int low, int high) {
-        if (low < high) {
-            int pi = partition(students, low, high);
-            quickSort(students, low, pi - 1);
-            quickSort(students, pi + 1, high);
-        }
-    }
 
-
-
-    private static void searchStudent(Scanner scanner) {
-        System.out.print("Enter student ID to search: ");
-        String id = scanner.nextLine();
-        Student student = findStudentById(id);
-        if (student == null) {
-            System.out.println("Student not found.");
-            return;
-        }
-        System.out.println(student);
-    }
-
-    private static void displayAllStudents() {
-        for (Student student : students) {
-            System.out.println(student);
-        }
-    }
-
-    private static Student findStudentById(String id) {
-        for (Student student : students) {
-            if (student.getId().equals(id)) {
-                return student;
+    public void searchStudent(String id) {
+        for (int i = 0; i < count; i++) {
+            if (students[i].getId().equals(id)) {
+                System.out.println(students[i]);
+                return;
             }
         }
-        return null;
+        System.out.println("Student not found.");
+    }
+
+    public void displayAllStudents() {
+        for (int i = 0; i < count; i++) {
+            System.out.println(students[i]);
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter the number of students: ");
+        int size = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        Main sm = new Main(size);
+
+        while (true) {
+            System.out.println("=== Students Management System ===");
+            System.out.println("1. Add Student");
+            System.out.println("2. Edit Student");
+            System.out.println("3. Delete Student");
+            System.out.println("4. Sort Students by Selection Sort");
+            System.out.println("5. Sort Students by Quick Sort");
+            System.out.println("6. Search Student");
+            System.out.println("7. Display All Students");
+            System.out.println("8. Exit");
+            System.out.print("Choose an option: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter Student ID: ");
+                    String id = scanner.nextLine();
+                    System.out.print("Enter Student Name: ");
+                    String name = scanner.nextLine();
+                    System.out.print("Enter Student Marks: ");
+                    double marks = scanner.nextDouble();
+                    scanner.nextLine(); // consume newline
+                    sm.addStudent(id, name, marks);
+                    break;
+                case 2:
+                    System.out.print("Enter Student ID to Edit: ");
+                    String editId = scanner.nextLine();
+                    System.out.print("Enter New Student Name: ");
+                    String newName = scanner.nextLine();
+                    System.out.print("Enter New Student Marks: ");
+                    double newMarks = scanner.nextDouble();
+                    scanner.nextLine(); // consume newline
+                    sm.editStudent(editId, newName, newMarks);
+                    break;
+                case 3:
+                    System.out.print("Enter Student ID to Delete: ");
+                    String deleteId = scanner.nextLine();
+                    sm.deleteStudent(deleteId);
+                    break;
+                case 4:
+                    sm.sortStudentsBySelectionSort();
+                    System.out.println("Students sorted by Selection Sort.");
+                    break;
+                case 5:
+                    sm.sortStudentsByQuickSort();
+                    System.out.println("Students sorted by Quick Sort.");
+                    break;
+                case 6:
+                    System.out.print("Enter Student ID to Search: ");
+                    String searchId = scanner.nextLine();
+                    sm.searchStudent(searchId);
+                    break;
+                case 7:
+                    sm.displayAllStudents();
+                    break;
+                case 8:
+                    System.exit(0);
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
     }
 }
+

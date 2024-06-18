@@ -23,25 +23,31 @@ public class Student {
         return marks;
     }
 
-    public void setMarks(double marks) {
-        this.marks = marks;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getRank() {
-        if (marks < 5.0) return "Fail";
-        if (marks < 6.5) return "Medium";
-        if (marks < 7.5) return "Good";
-        if (marks < 9.0) return "Very Good";
-        return "Excellent";
+    public void setMarks(double marks) {
+        this.marks = marks;
+    }
+
+    public String getRanking() {
+        if (marks < 5.0) {
+            return "Fail";
+        } else if (marks < 6.5) {
+            return "Medium";
+        } else if (marks < 7.5) {
+            return "Good";
+        } else if (marks < 9.0) {
+            return "Very Good";
+        } else {
+            return "Excellent";
+        }
     }
 
     @Override
     public String toString() {
-        return String.format("ID: %s, Name: %s, Marks: %.2f, Rank: %s", id, name, marks, getRank());
+        return "Student ID: " + id + ", Name: " + name + ", Marks: " + marks + ", Ranking: " + getRanking();
     }
 }
 
